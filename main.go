@@ -12,7 +12,7 @@ import (
 func main() {
 	s := echo.New()
 
-	s.GET("/status", Handler)
+	s.GET("/status", Handler, MW)
 
 	err := s.Start(":8080")
 	if err != nil {
@@ -28,4 +28,17 @@ func Handler(ctx echo.Context) error {
 	s := fmt.Sprintf("Days left: %d", int64(dur.Hours())/24)
 
 	return ctx.String(http.StatusOK, s)
+}
+
+func MW(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+
+		val := ctx.Request().Header.Get("User-Role")
+
+		if val == "admin" {
+			log.Println("red button user detected")
+		}
+
+		return next(ctx)
+	}
 }
